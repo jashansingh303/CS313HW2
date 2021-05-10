@@ -1,0 +1,27 @@
+#include "stack_linked_list.txt.h"
+
+using namespace std;
+
+int main() {
+
+	// create stack
+	linkedStackType<int> stack;
+
+	// push 0 to 9
+	for (int i = 0; i < 10; i++)
+	{
+		stack.push(i);
+	}
+
+	// print all 
+	stack.listAll();
+
+	// set element at index 0 and 4
+	stack.set(0, 100);
+	stack.set(4, 500);
+	
+	// print again
+	stack.listAll();
+
+	return 0;
+}
