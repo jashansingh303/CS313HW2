@@ -1,0 +1,191 @@
+//Header File: linkedStack.h 
+
+#ifndef H_StackType
+#define H_StackType
+ 
+#include <iostream>
+#include <cassert> 
+#include "stackADT.h"
+
+using namespace std;
+
+
+template <class Type> //template class
+struct nodeType
+{
+    Type info;
+    nodeType<Type> *link;
+};
+
+//declaring functions
+template <class Type>
+class linkedStackType: public stackADT<Type>
+{
+public:
+    const linkedStackType<Type>& operator=
+                              (const linkedStackType<Type>&);
+
+    bool isEmptyStack() const;
+
+    bool isFullStack() const;
+
+    void initializeStack();
+
+    void push(const Type& newItem);
+
+    Type top() const;
+
+    void pop();
+
+    linkedStackType(); 
+
+    linkedStackType(const linkedStackType<Type>& otherStack); 
+  
+    ~linkedStackType();
+
+private:
+    nodeType<Type> *stackTop; //pointer to the stack
+
+    void copyStack(const linkedStackType<Type>& otherStack); 
+
+};
+
+
+    
+template <class Type> //makes template class
+linkedStackType<Type>::linkedStackType()
+{
+    stackTop = nullptr; //sets stackTop to a nullptr
+}
+
+template <class Type>
+bool linkedStackType<Type>::isEmptyStack() const //returns nullptr for isEmptyStack
+{
+    return(stackTop == nullptr); 
+} 
+
+template <class Type>
+bool linkedStackType<Type>:: isFullStack() const //returns false for isEmptyStack
+{
+    return false;
+} 
+
+template <class Type>
+void linkedStackType<Type>:: initializeStack() //initializes stack
+{
+    nodeType<Type> *temp;               //pointer to temp
+
+    while (stackTop != nullptr)         //while stackTop isnt a nullptr, temp is the stackTop
+    {
+        temp = stackTop;    
+                           
+        stackTop = stackTop->link;      //stackTop points to link
+                                   
+        delete temp;                    // delete the temp point
+    }
+} 
+
+template <class Type>
+void linkedStackType<Type>::push(const Type& newElement)
+{
+    nodeType<Type> *newNode;        //create ptr to newNode
+
+    newNode = new nodeType<Type>;         
+
+    newNode->info = newElement;       //newElement points to info
+    newNode->link = stackTop;         //stackTop points to link
+    stackTop = newNode;               //stackTop equals newNode
+                             
+} //end push
+
+
+template <class Type>
+Type linkedStackType<Type>::top() const
+{
+    assert(stackTop != nullptr);  //stackTop is not equal to nullptr
+                              
+    return stackTop->info; //returns info
+}//end top
+
+template <class Type>
+void linkedStackType<Type>::pop()
+{
+    nodeType<Type> *temp;   
+
+    if (stackTop != nullptr)  //if stackTop doesn't equal nullptr make stackTop equal to temp and make stackTop point to link then delete temp
+    {
+        temp = stackTop;  
+
+        stackTop = stackTop->link; 
+                                    
+        delete temp;    
+    }
+    else
+        cout << "Cannot remove from an empty stack." << endl;
+}//end pop
+
+template <class Type> 
+void linkedStackType<Type>::copyStack
+                     (const linkedStackType<Type>& otherStack)
+{
+    nodeType<Type> *newNode, *current, *last;
+
+    if (stackTop != nullptr) //if stackTop doesnt equal nullptr initialize the stack
+        initializeStack();
+
+    if (otherStack.stackTop == nullptr) //if the top of otherStack isnt nullptr make it nullptr
+        stackTop = nullptr;
+    else
+    {
+        current = otherStack.stackTop;  //make current top of otherStack
+
+          
+        stackTop = new nodeType<Type>;  //new node
+
+        stackTop->info = current->info; //stackTop and current both point to info
+        stackTop->link = nullptr;  //nullptr points to link
+                               
+        last = stackTop;        
+        current = current->link;    
+
+           
+        while (current != nullptr)
+        {
+            newNode = new nodeType<Type>;
+
+            newNode->info = current->info;
+            newNode->link = nullptr;
+            last->link = newNode;
+            last = newNode;
+            current = current->link;
+        }
+    }
+} 
+
+ 
+template <class Type>   
+linkedStackType<Type>::linkedStackType(
+                      const linkedStackType<Type>& otherStack)
+{
+    stackTop = nullptr;
+    copyStack(otherStack); //copies one stack to another
+}
+
+  
+template <class Type> 
+linkedStackType<Type>::~linkedStackType()
+{
+    initializeStack(); //initializes the stack
+}
+    
+template <class Type>   
+const linkedStackType<Type>& linkedStackType<Type>::operator=
+    			  (const linkedStackType<Type>& otherStack)
+{ 
+    if (this != &otherStack)  //is this isn't the address of the otherstack copy otherStack and return *this
+        copyStack(otherStack); 
+
+    return *this; 
+}
+
+#endif
