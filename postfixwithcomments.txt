@@ -1,0 +1,195 @@
+//***********************************************************
+// Author: D.S. Malik
+//
+// Program: Postfix Calculator  
+// This program evaluates postfix expressions.
+//***********************************************************
+  
+#include <iostream>  
+#include <iomanip>
+#include <fstream>
+#include "mystack.h"
+ 
+using namespace std; 
+//declaring functions
+void evaluateExpression(ifstream& inpF, ofstream& outF, 
+                        stackType<double>& stack,
+                        char& ch, bool& isExpOk);
+void evaluateOpr(ofstream& out, stackType<double>& stack,
+                 char& ch, bool& isExpOk);
+void discardExp(ifstream& in, ofstream& out, char& ch);
+void printResult(ofstream& outF, stackType<double>& stack,
+                 bool isExpOk);
+
+int main()
+{
+  //declerations
+    bool expressionOk;
+    char ch;
+    stackType<double> stack(100);
+    ifstream infile;
+    ofstream outfile;
+ 
+    infile.open("RpnData.txt");//opens RpnData text file
+
+    if (!infile) //if the text file isn't infile cout following msgs
+    {
+        cout << "Cannot open the input file. "
+             << "Program terminates!" << endl;
+        return 1;
+    }
+     
+    outfile.open("RpnOutput.txt"); //opens output file RpnOutput
+
+    outfile << fixed << showpoint;
+    outfile << setprecision(2); 
+
+    infile >> ch;
+    while (infile) //while infile
+    {
+        stack.initializeStack(); //run stack.initializeStack
+        expressionOk = true;     //expressionOk is true
+        outfile << ch;           
+
+        evaluateExpression(infile, outfile, stack, ch, 
+                           expressionOk);
+        printResult(outfile, stack, expressionOk);
+        infile >> ch; //begin processing the next expression
+    } //end while 
+
+    infile.close();
+    outfile.close();
+
+    return 0;
+
+} //end main
+
+
+void evaluateExpression(ifstream& inpF, ofstream& outF, stackType<double>& stack,char& ch, bool& isExpOk)
+{
+    double num; //decleare a double
+
+    while (ch != '=') //while char isn't equal switch char
+    {
+        switch (ch)
+        {
+        case '#': 
+            inpF >> num;
+            outF << num << " ";
+            if (!stack.isFullStack())
+                stack.push(num);
+            else
+            {
+                cout << "Stack overflow. "
+                     << "Program terminates!" << endl;
+                exit(0);  //terminate the program
+            }
+
+            break;
+        default: 
+            evaluateOpr(outF, stack, ch, isExpOk);
+        }//end switch
+
+        if (isExpOk) //if no error
+        {
+            inpF >> ch;
+            outF << ch;
+
+            if (ch != '#')
+                outF << " ";
+        }
+        else
+            discardExp(inpF, outF, ch);
+    } //end while (!= '=')
+} //end evaluateExpression
+
+
+void evaluateOpr(ofstream& out, stackType<double>& stack, //checks the operators amd operands
+              char& ch, bool& isExpOk)
+{
+    double op1, op2; //declare doubles
+
+    if (stack.isEmptyStack()) //if the stack is empty return not enough operands
+    {
+        out << " (Not enough operands)";
+        isExpOk = false;
+    }
+    else
+    {
+        op2 = stack.top();  //op2 is equal to the top of stack
+        stack.pop();        //pop the stack
+
+        if (stack.isEmptyStack())   //if the stack is empty return not enough operands
+        {
+            out << " (Not enough operands)";
+            isExpOk = false;
+        }
+        else
+        {
+            op1 = stack.top();    
+            stack.pop();
+
+            switch (ch)
+            {
+            case '+':                       if the case is +,-,/,* push the stack and use the operator for op1 and op2
+                stack.push(op1 + op2);  
+                break;
+            case '-': 
+                stack.push(op1 - op2);
+                break;
+            case '*': 
+                stack.push(op1 * op2);
+                break;
+            case '/': 
+                if (op2 != 0)
+                    stack.push(op1 / op2);
+                else
+                {
+                    out << " (Division by 0)";  //dividing by 0 isn't possible
+                    isExpOk = false;
+                }
+                break;
+            default:  
+                out << " (Illegal operator)";
+                isExpOk = false;
+            }//end switch
+        } //end else
+    } //end else
+} //end evaluateOpr
+
+
+void discardExp(ifstream& in, ofstream& out, char& ch)
+{
+    while (ch != '=') //while ch isnt = get ch
+    {
+        in.get(ch);
+        out << ch;
+    }
+} //end discardExp
+
+void printResult(ofstream& outF, stackType<double>& stack,
+                 bool isExpOk)
+{
+    double result;
+
+    if (isExpOk) //if no error, print the result
+    {
+        if (!stack.isEmptyStack()) //if stack isn't empty
+        {
+            result = stack.top(); //make result equal to the top of the stack
+            stack.pop();
+
+            if (stack.isEmptyStack()) 
+                outF << result << endl;
+            else
+                outF << " (Error: Too many operands)" << endl;
+        } //end if
+        else
+            outF << " (Error in the expression)" << endl;
+    }
+    else
+        outF << " (Error in the expression)" << endl;
+
+    outF << "_________________________________" 
+         << endl << endl;
+} //end printResult
