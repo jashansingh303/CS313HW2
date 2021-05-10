@@ -1,0 +1,64 @@
+#include "linkedStack.h"
+#include <fstream>
+#include <iostream>
+#include <sstream>
+
+using namespace std;
+
+
+// method to reverse a word
+void reverse(string word) {
+	linkedStackType<char> stack;
+
+	// push all characters to stack
+	for (int i = 0; i < word.length(); i++)
+	{
+		stack.push(word[i]);
+	}
+
+
+	// pop and print
+	while(!stack.isEmptyStack()) {
+		cout << stack.top();
+		stack.pop();
+	}
+
+	
+}
+
+
+// reverse a full joke
+void reverseJoke(string joke) {
+	// to break to words
+	istringstream ss(joke);
+	string word;
+	while(!ss.eof()) { //eof is a function used to check the end of file. So while the end of file is not reached
+	                	// read word and reverse
+		ss >> word;
+		reverse(word);
+		cout << " ";
+	}
+
+	cout << endl;
+
+}
+
+
+
+int main() {
+
+	string filename = "jokes.txt";
+
+	// open file
+	ifstream file(filename);
+
+
+	string joke; //declare string joke
+	
+  while(getline(file, joke)) {
+		reverseJoke(joke); 	// reverses the string
+	}
+
+	return 0;
+	
+}
