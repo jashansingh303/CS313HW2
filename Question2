@@ -1,0 +1,50 @@
+#include <iostream>  
+#include <stack>
+
+using namespace std;
+
+bool op(char i){//checks to see if the char is an operator or not
+  switch (i){
+    case '+':
+    case '-':
+    case '*':
+    case '/':
+    return true;
+  }
+  return false;
+}
+
+string postFixToPreFix(string post){//converts from post to pre fix
+  stack<string> s;
+
+  for(int i=0;i<post.length();i++){//iterates through the post string
+      if (op(post[i])){//Will check if the the symbol is an operator
+          
+          string op1 = s.top();//pops operand from stack
+          s.pop();
+          string op2 = s.top();//pops another operand from stack
+          s.pop();
+
+          string temporary = post[i] +op2 + op1;//Will concatonate the operators and operands
+
+          s.push(temporary);//Puts the temporary string into stack
+      }
+      else {//if the symbol is an operand push it to the stack
+        s.push(string(1, post[i]));
+      }
+  }
+  string answer = "";
+    if (!s.empty()) {//if the string s isnt empty add s.top to ans and pop. Then return ans
+        answer += s.top(); //ans = ans + s.top()
+        s.pop(); 
+    }
+    return answer;
+}
+
+int main(){
+  string post;
+  cout<<"Please enter your postfix expression"<<endl;
+  cin>>post;
+  cout<<"Your prefix expresion is: "<<postFixToPreFix(post);
+  return 0;
+}
